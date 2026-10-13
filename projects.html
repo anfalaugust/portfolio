@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects | Anfal Alobeid</title>
+  <meta name="description" content="Projects by Anfal Alobeid, Computer Science student at King Saud University." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-projects">
+  <div class="bg" aria-hidden="true">
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+  </div>
+
+  <header>
+    <a href="index.html" class="back-btn" aria-label="Back to home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      Home
+    </a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <div class="page-head reveal d1">
+      <div class="eyebrow">Projects</div>
+      <h1>My Work</h1>
+      <p>Click a project to see more details.</p>
+    </div>
+
+    <section class="stage reveal d2" id="stage" aria-roledescription="carousel" aria-label="Projects"></section>
+
+    <div class="controls reveal d3">
+      <button class="nav-btn" id="prevBtn" aria-label="Previous project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="now" aria-live="polite"><strong id="nowTitle"></strong><span id="nowMeta"></span></div>
+      <button class="nav-btn" id="nextBtn" aria-label="Next project">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="dots reveal d4" id="dots"></div>
+  </main>
+
+    <script src="projects.js"></script>
+  <script>
+    // ----- Dark mode toggle -----
+    const root = document.documentElement;
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    });
+
+    // ----- Build the list (adds "coming soon" cards while you have fewer than 3 projects) -----
+    const SOON = { soon: true, title: 'Coming soon', subtitle: 'New project on the way' };
+    let items = PROJECTS.slice();
+    if (items.length === 1) items = [SOON, items[0], SOON];
+    else if (items.length === 2) items = [SOON, items[0], items[1]];
+    else items = [items[1], items[0], ...items.slice(2)]; // keep the first project in the middle
+    let current = items.indexOf(PROJECTS[0]); // start on your first (main) project
+
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const stage = document.getElementById('stage');
+    const dots = document.getElementById('dots');
+
+    items.forEach((p, i) => {
+      const card = document.createElement('article');
+      card.className = 'p-card' + (p.soon ? ' soon' : '');
+      card.tabIndex = -1;
+      if (p.soon) {
+        card.setAttribute('aria-hidden', 'true');
+        card.innerHTML = `
+          <div class="p-media">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+          </div>
+          <div class="p-body">
+            <div class="p-title">${esc(p.title)}</div>
+            <div class="skeleton" style="width:80%"></div>
+            <div class="skeleton" style="width:55%"></div>
+          </div>`;
+      } else {
+        card.setAttribute('role', 'link');
+        card.setAttribute('aria-label', p.title + ' – view details');
+        card.innerHTML = `
+          <div class="p-media">
+            <img src="${esc(p.image)}" alt="${esc(p.title)} app screenshot" draggable="false" />
+            <span class="p-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              View details
+            </span>
+          </div>
+          <div class="p-body">
+            <div class="p-top">
+              <div class="p-title">${esc(p.title)}</div>
+              <div class="p-course">${esc((p.courseShort || p.course.split('–')[0].trim()))}</div>
+            </div>
+            <div class="p-sub">${esc(p.subtitle)}</div>
+            <p class="p-summary">${esc(p.summary)}</p>
+            <div class="p-tags">${p.tech.slice(0, 4).map(t => `<span>${esc(t)}</span>`).join('')}</div>
+          </div>`;
+      }
+      card.addEventListener('click', () => {
+        if (i !== current) return go(i);
+        if (!p.soon) openProject(p);
+      });
+      card.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && !p.soon) { e.preventDefault(); openProject(p); }
+      });
+      stage.appendChild(card);
+
+      const d = document.createElement('button');
+      d.setAttribute('aria-label', p.soon ? 'Coming soon' : p.title);
+      d.addEventListener('click', () => go(i));
+      dots.appendChild(d);
+    });
+
+    const cards = [...stage.children];
+
+    function layout() {
+      const w = cards[0].offsetWidth;
+      const step = Math.min(w * 0.78, window.innerWidth * 0.36);
+      cards.forEach((card, i) => {
+        const off = i - current;
+        const abs = Math.abs(off);
+        const x = off * step;
+        const z = -abs * 140;
+        const rot = -off * 24;
+        const scale = 1 - Math.min(abs, 2) * 0.06;
+        card.style.transform =
+          `translate(-50%, -50%) translateX(${x}px) translateZ(${z}px) rotateY(${rot}deg) scale(${scale})`;
+        card.style.zIndex = 100 - abs;
+        card.style.opacity = abs > 2 ? 0 : (abs <= 1 ? 1 : 0.75);
+        card.classList.toggle('is-center', abs === 0);
+        card.classList.toggle('is-side', abs > 0);
+        card.classList.toggle('is-hidden', abs > 2);
+        card.tabIndex = abs === 0 && !items[i].soon ? 0 : -1;
+      });
+      [...dots.children].forEach((d, i) => d.classList.toggle('active', i === current));
+      const p = items[current];
+      document.getElementById('nowTitle').textContent = p.soon ? 'Coming soon' : p.title;
+      document.getElementById('nowMeta').textContent = p.soon ? 'More projects on the way' : p.course;
+      document.getElementById('prevBtn').disabled = current === 0;
+      document.getElementById('nextBtn').disabled = current === items.length - 1;
+    }
+
+    function go(i) {
+      current = Math.max(0, Math.min(items.length - 1, i));
+      layout();
+    }
+
+    function openProject(p) {
+      window.location.href = 'project.html?id=' + encodeURIComponent(p.id);
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => go(current - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(current + 1));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') go(current - 1);
+      if (e.key === 'ArrowRight') go(current + 1);
+    });
+
+    // Swipe on phones
+    let startX = null;
+    stage.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) go(current + (dx < 0 ? 1 : -1));
+      startX = null;
+    });
+
+    window.addEventListener('resize', layout);
+    layout();
+
+  </script>
+</body>
+</html>
